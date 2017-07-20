@@ -8,6 +8,7 @@
                            :scope "test"
                            :exclusions [org.slf4j/log4j-over-slf4j]]
                           [org.clojure/clojure "1.9.0-alpha17"]
+                          [org.clojure/core.async "0.3.443"]
                           [org.clojure/spec.alpha "0.1.123"]
                           ;; Pedestal uses 2.1.4. There have been lots of bug
                           ;; fixes since then. So go with the latest/greatest
