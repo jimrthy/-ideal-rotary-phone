@@ -66,6 +66,8 @@
                           org.slf4j/slf4j-api
                           ring/ring-core]]
             [metosin/boot-alt-test "0.3.2" :scope "test"]
+            ;; By all (most?) reports, this badly breaks clojurescript.
+            ;; Might have to roll back to alpha19 or 20.
             [org.clojure/clojure "1.9.0-beta1"]
             [org.clojure/clojurescript "1.9.908" :scope "test" :exclusions [org.clojure/clojure]]
             [org.clojure/core.async "0.3.443" :exclusions [org.clojure/clojure
