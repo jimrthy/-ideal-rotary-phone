@@ -17,7 +17,7 @@
 ;;; Public
 
 (defmethod ig/init-key ::authcz
-  [this]
+  [_ this]
   this)
 
 (defmethod ig/init-key ::routes
@@ -38,9 +38,29 @@
 
 (defmethod ig/init-key ::server
   [_
-   {:keys [::service]
+   {:keys [::routes]
+    {:keys [:env]
+     :as service} ::service
     :as this}]
-  this)
+  {:pre [env
+         routes
+         service]}
+  (assoc this
+         ::actual
+         (-> service
+             (merge
+              {::http/routes (::routes routes)
+               ;; Don't block the thread that starts the server
+               ::http/join? false
+               ;; For dev mode, allow any origin.
+               ;; TODO: Totally change the rules for production
+               ::http/allowed-origins {:creds true
+                                       :allowed-origins (constantly true)}})
+             ;; Wire up interceptor chains
+             http/default-interceptors
+             http/dev-interceptors
+             http/create-server
+             http/start)))
 
 (defmethod ig/init-key ::service
   [_

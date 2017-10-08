@@ -13,6 +13,7 @@
             [clojure.test :as test]
             [clojure.tools.namespace.repl :refer (refresh refresh-all)]
             [com.jimrthy.blog.system :as sys]
+            [com.jimrthy.blog.web :as web]
             [integrant.core :as ig]
             [io.pedestal.http :as http]
             ;; try-routing-for is especially useful
