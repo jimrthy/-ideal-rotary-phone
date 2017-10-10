@@ -1,5 +1,6 @@
 (ns com.jimrthy.blog.web.routes
-  (:require [clojure.pprint :refer (pprint)]
+  (:require [cheshire.core :as json]
+            [clojure.pprint :refer (pprint)]
             [com.jimrthy.blog.web.response-wrappers :as respond]
             [io.pedestal.http.content-negotiation :as con-neg]
             [io.pedestal.http.route :as route]
@@ -32,6 +33,35 @@
 ;; TODO: need to add an interceptor that coerces the body
 (def content-neg-intc (con-neg/negotiate-content supported-types))
 
+(defn accepted-type
+  [ctx]
+  (get-in ctx [:request :accept :field] "text/plain"))
+
+(defn transform-content
+  [body content-type]
+  (case content-type
+    "text/html" body
+    "text/plain" body
+    "application/edn" (pr-str body)
+    "application/json" (json/generate-string body)))
+
+(defn coerce-to
+  [response content-type]
+  (-> response
+      (update :body transform-content content-type)
+      (assoc-in [:headers "Content-Type"] content-type)))
+
+(def coerce-body {:name ::coerce-body
+                  :leave (fn [ctx]
+                           (if (get-in ctx [:response :headers "Content-Type"])
+                             ctx
+                             (update ctx :response coerce-to (accepted-type ctx))))})
+
+(defn greet
+  [request]
+  (let [nm (get-in request [:query-params :name])]
+    {:status 200 :body (str "Hello, " nm "\n")}))
+
 (defn table
   "Return the HTTP routes"
   [{auth-manager ::authcz
@@ -49,6 +79,7 @@
   ;; But this is the basic idea
   #{["/api/v1/echo" :get echo :route-name ::get-echo]
     ["/api/v1/echo" :post echo :route-name ::post-echo]
+    ["/api/v1/greet" :get [coerce-body content-neg-intc greet] :route-name ::hello-world]
     #_["/api/v1/login" :get (conj (intrcptr/default-interceptor-chain auth-manager)
                                 list-logged-in-users)]
     #_["/api/v1/login" :post (conj (vec (remove #(or (= intrcptr/authc %)
