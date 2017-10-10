@@ -9,7 +9,7 @@
   ;; Fulfill this to let a "standard" run complete
   (promise))
 
-(defmethod ig/init-key ::production
+(defmethod ig/init-key ::production?
   [_
    {:keys [::prod?]
     :or {prod? false}}]
@@ -21,14 +21,14 @@
   ;; TODO: Let opts override defaults
   {::done {}
    ::lamport/clock {}
-   ::production {::prod? false}
+   ::production? {::prod? false}
    ::web/authcz {}
    ::web/routes {:com.jimrthy.blog.web.routes.authcz (ig/ref ::web/authcz)}
    ::web/server {::web/routes (ig/ref ::web/routes)
                  ::web/service (ig/ref ::web/service)}
    ::web/service {::web/authcz (ig/ref ::web/authcz)
                   ::web/port 8002
-                  ::web/production? (ig/ref ::production)
+                  ::web/production? (ig/ref ::production?)
                   ::web/web-socket {}
                   ::web/ws (ig/ref ::web/socket)}
    ::web/socket {}})

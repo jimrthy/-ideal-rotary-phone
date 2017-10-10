@@ -21,24 +21,25 @@
   this)
 
 (defmethod ig/init-key ::routes
-  [_ {:keys [::authcz]
+  [_ {:keys [::authcz
+             ::production?]
       :as this}]
   (log/info ::where "Initializing routes")
-  (comment
-    ;; According to the docs, you can supply a
-    ;; function here to update your routes dynamically.
-    ;; This is supposed to be a nice way to update your
-    ;; routes on the fly, without needing to restart
-    ;; the server.
-    ;; TODO: Get that working.
-    (if production?
-      (routes/wrapper)
-      #'routes/wrapper))
+  ;; According to the docs, you can supply a
+  ;; function here to update your routes dynamically.
+  ;; This is supposed to be a nice way to update your
+  ;; routes on the fly, without needing to restart
+  ;; the server.
+  ;; TODO: Get that working.
+  (if production?
+    (routes/wrapper)
+    #'routes/wrapper)
   (assoc this ::routes (routes/wrapper this)))
 
 (defmethod ig/halt-key! ::server
-  [_ this]
-  (log/warn ::problem "Need to stop the server"))
+  [_ {:keys [::actual]
+      :as this}]
+  (http/stop actual))
 
 (defmethod ig/init-key ::server
   [_
