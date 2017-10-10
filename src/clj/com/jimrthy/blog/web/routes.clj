@@ -30,7 +30,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Internal Helpers
 
-;; TODO: need to add an interceptor that coerces the body
+;; TODO: Probably want to use the :mime-types key in the service
+;; map returned by init-key in service instead
 (def content-neg-intc (con-neg/negotiate-content supported-types))
 
 (defn accepted-type
@@ -60,7 +61,7 @@
 (defn greet
   [request]
   (let [nm (get-in request [:query-params :name])]
-    {:status 200 :body (str "Hello, " nm "\n")}))
+    (respond/ok (str "Hello, " nm "\n"))))
 
 (defn table
   "Return the HTTP routes"

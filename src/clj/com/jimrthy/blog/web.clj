@@ -68,41 +68,37 @@
              http/start)))
 
 (defmethod ig/init-key ::service
-  [_
-   {:keys [::authcz
-           ::port
-           ::production?
-           ::routes
-           ::ws]
-    :as this
-    :or {port 8080}}]
+  [_ {:keys [::authcz
+             ::port
+             ::production?
+             ::routes
+             ::ws]
+      :or {port 8080}}]
   (let [{:keys [::authcz/cookie-key]} authcz
-        baseline
-        {:env (if production?
-                :prod
-                :dev)
-         ::http/allowed-origins (fn [x]
-                                  (log/info ::todo "TODO: Verify the origin of"
-                                            ::what? x)
-                                  true)
-         ;; Inject the interceptor for websocket connections
-         ::http/container-options {:context-configurator (ws/configurator ws)}
-         ;; This needs to be "A settings map to include the csrf-protection
-         ;; interceptor. This implies sessions are enabled."
-         ;; So...what does that actually mean?
-         ;; And how do we use this?
-         ;; ::http/enable-csrf {:cookie-token true}
-         ;; TODO: Use a real database for the cookie store
-         ::http/enable-session {:store (cookie/cookie-store {:key cookie-key})}
-         ;; do not block thread that starts web server
-         ::http/join? false
-         ::http/port port
-         ::http/resource-path "/public"
-         ;; According to the official docs:
-         ;; this can be "a function that returns routes when called"
-         ;; Trying to use routes/route-wrapper hasn't panned out so far
-         ::http/routes (::routes/routes routes)
-         ::http/type :immutant}]
+        baseline {:env (if production?
+                         :prod
+                         :dev)
+                  ::http/allowed-origins (fn [x]
+                                           (log/info "TODO: Verify the origin of" x)
+                                           true)
+                  ;; Inject the interceptor for websocket connections
+                  ::http/container-options {:context-configurator (ws/configurator ws)}
+                  ;; This needs to be "A settings map to include the csrf-protection
+                  ;; interceptor. This implies sessions are enabled."
+                  ;; So...what does that actually mean?
+                  ;; And how do we use this?
+                  ;; ::http/enable-csrf {:cookie-token true}
+                  ;; TODO: Use a real database for the cookie store
+                  ::http/enable-session {:store (cookie/cookie-store {:key cookie-key})}
+                  ;; do not block thread that starts web server
+                  ::http/join? false
+                  ::http/port port
+                  ::http/resource-path "/public"
+                  ;; According to the official docs:
+                  ;; this can be "a function that returns routes when called"
+                  ;; Trying to use routes/route-wrapper hasn't panned out so far
+                  ::http/routes (::routes/routes routes)
+                  ::http/type :immutant}]
     (if production?
       baseline
       (merge baseline {                  ;; all origins are allowed in dev mode
