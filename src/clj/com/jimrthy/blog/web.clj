@@ -36,6 +36,10 @@
       #'routes/wrapper))
   (assoc this ::routes (routes/wrapper this)))
 
+(defmethod ig/halt-key! ::server
+  [_ this]
+  (log/warn ::problem "Need to stop the server"))
+
 (defmethod ig/init-key ::server
   [_
    {:keys [::routes]
