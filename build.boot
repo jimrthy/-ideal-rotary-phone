@@ -29,7 +29,7 @@
             [integrant/repl "0.2.0" :exclusions [integrant
                                                  org.clojure/clojure
                                                  org.clojure/tools.namespace]]
-            [io.pedestal/pedestal.service "0.5.2" :exclusions [cheshire
+            [io.pedestal/pedestal.service "0.5.3" :exclusions [cheshire
                                                                commons-codec
                                                                com.cognitect/transit-clj
                                                                com.cognitect/transit-java
@@ -44,9 +44,9 @@
                                                                org.slf4j/log4j-over-slf4j
                                                                org.slf4j/slf4j-api
                                                                ring/ring-core]]
-            [io.pedestal/pedestal.immutant "0.5.2" :exclusions [org.clojure/clojure
+            [io.pedestal/pedestal.immutant "0.5.3" :exclusions [org.clojure/clojure
                                                                 org.immutant/web]]
-            [io.pedestal/pedestal.service-tools "0.5.2"
+            [io.pedestal/pedestal.service-tools "0.5.3"
              :scope "test"
              :exclusions [cheshire
                           commons-codec
@@ -66,14 +66,12 @@
                           org.slf4j/slf4j-api
                           ring/ring-core]]
             [metosin/boot-alt-test "0.3.2" :scope "test"]
-            ;; By all (most?) reports, this badly breaks clojurescript.
-            ;; Might have to roll back to alpha19 or 20.
-            [org.clojure/clojure "1.9.0-beta1"]
-            [org.clojure/clojurescript "1.9.908" :scope "test" :exclusions [org.clojure/clojure]]
+            [org.clojure/clojure "1.9.0-beta2"]
+            [org.clojure/clojurescript "1.9.946" :scope "test" :exclusions [org.clojure/clojure]]
             [org.clojure/core.async "0.3.443" :exclusions [org.clojure/clojure
                                                            org.clojure/tools.reader]]
             [org.clojure/java.classpath "0.2.3" :scope "test" :exclusions [org.clojure/clojure]]
-            [org.clojure/spec.alpha "0.1.123" :exclusions [org.clojure/clojure]]
+            [org.clojure/spec.alpha "0.1.134" :exclusions [org.clojure/clojure]]
             [org.clojure/test.check "0.10.0-alpha2" :scope "test" :exclusions [org.clojure/clojure]]
             [org.clojure/tools.namespace "0.3.0-alpha4" :exclusions [org.clojure/clojure
                                                                      org.clojure/tools.reader]]
