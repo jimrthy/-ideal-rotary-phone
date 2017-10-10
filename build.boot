@@ -5,11 +5,11 @@
 (def version "0.1.0-SNAPSHOT")
 
 (set-env! :dependencies
-          '[[adzerk/boot-cljs "2.1.3" :scope "test"]
+          '[[adzerk/boot-cljs "2.1.4" :scope "test"]
             [adzerk/boot-cljs-repl "0.3.3" :scope "test"]
             [adzerk/boot-reload "0.5.2" :scope "test"]
             #_[adzerk/boot-test "RELEASE" :scope "test"]
-            [binaryage/devtools "0.9.4" :scope "test"]
+            [binaryage/devtools "0.9.7" :scope "test"]
             [boot-immutant "0.6.0" :scope "test"]
             [cheshire "5.8.0" :exclusions [org.clojure/clojure]]
             [com.cemerick/piggieback "0.2.2" :scope "test" :exclusions [args4j
@@ -19,7 +19,7 @@
             [crisptrutski/boot-cljs-test "0.3.4" :scope "test"]
             [crypto-random "1.2.0" :exclusions [commons-codec
                                                 org.clojure/clojure]]
-            [doo "0.1.7" :scope "test" :exclusions [org.clojure/clojure
+            [doo "0.1.8" :scope "test" :exclusions [org.clojure/clojure
                                                     org.clojure/clojurescript]]
             [environ "1.1.0" :exclusions [org.clojure/clojure]]
             [integrant "0.6.1" :exclusions [org.clojure/clojure]]
@@ -109,7 +109,7 @@
             [samestep/boot-refresh "0.1.0" :scope "test" :exclusions [org.clojure/tools.namespace]]
             ;; None of the linters currently work with
             ;; clojure 1.9. But maybe someday...
-            [tolitius/boot-check "0.1.4" :scope "test"]
+            [tolitius/boot-check "0.1.5" :scope "test"]
             [weasel "0.7.0" :scope "test" :exclusions [org.clojure/clojure
                                                        org.clojure/clojurescript]]]
           :resource-paths #{"resources" "src/clj" "src/cljc" "src/cljs"}
