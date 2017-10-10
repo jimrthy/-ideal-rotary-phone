@@ -243,7 +243,7 @@ Access in code via (some-> \"version.txt\" clojure.java.io/resource slurp clojur
    ;; possibly be conflicts between http-kit and aleph
    (cljs-repl :ids #{"js/main"})
    ;; This sets up the cljs compiler
-   (cljs :ids #{"js/main"})
+   (cljs :ids #{"js/main"} :source-map true :optimizations :none)
    (target :dir #{"target"})
    ;; This next form was probably something I inherited from
    ;; https://github.com/Deraen/saapas in the template

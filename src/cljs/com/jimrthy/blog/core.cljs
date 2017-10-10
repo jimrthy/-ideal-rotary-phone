@@ -1,5 +1,18 @@
-(ns com.jimrthy.blog.core)
+(ns com.jimrthy.blog.core
+  (:require [com.jimrthy.blog.lamport :as lamport]))
 
 (enable-console-print!)
 
-(println "Greetings")
+(defonce state {::lamport (ig/init-key ::clock {})})
+
+(defn reload!
+  []
+  (println "Reloading2")
+  (swap! state
+         #(update % ::lamport inc)))
+
+(defn main
+  [& args]
+  (println "(main) called with:")
+  (doseq [arg args]
+    (println arg)))

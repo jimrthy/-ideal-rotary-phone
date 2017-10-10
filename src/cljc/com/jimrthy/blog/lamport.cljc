@@ -1,7 +1,9 @@
 (ns com.jimrthy.blog.lamport
   (:require [clojure.spec.alpha :as s]
             [integrant.core :as ig]
-            [io.pedestal.log :as log]))
+            #?(:clj [io.pedestal.log :as log])))
+
+#? (:cljs (enable-console-logging!))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Specs
@@ -22,6 +24,12 @@
               (inc remote-time)
               (inc my-time))))))
 
+(defn info
+  [& args]
+  ;; Well, this is annoying.
+  ;; Can't take the value of a macro.
+  (apply  args))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Public
 
@@ -32,11 +40,13 @@
   {:name ::ticker
    :enter (fn [{:keys [::clock]
                 :as ctx}]
-            (log/info ::entering @clock)
+            (#?(:clj log/info
+                :cljs println) ::entering @clock)
             (update ctx ::clock tick!))
    :leave (fn [{:keys [::clock]
                 :as ctx}]
-            (log/info ::leaving @clock)
+            (#?(:clj log/info
+                :cljs println) ::leaving @clock)
             (update ctx ::clock tick!))})
 
 (defmethod ig/init-key ::clock
