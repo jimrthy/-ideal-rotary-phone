@@ -244,6 +244,7 @@ Access in code via (some-> \"version.txt\" clojure.java.io/resource slurp clojur
    (cljs-repl :ids #{"js/main"})
    ;; This sets up the cljs compiler
    (cljs :ids #{"js/main"} :source-map true :optimizations :none)
+   (sift :move {#"^js/(.*)" "public/js/$1"})
    (target :dir #{"target"})
    ;; This next form was probably something I inherited from
    ;; https://github.com/Deraen/saapas in the template
@@ -259,6 +260,24 @@ Access in code via (some-> \"version.txt\" clojure.java.io/resource slurp clojur
   [a args ARG [str] "the arguments for the application."]
   (require '[com.jimrthy.blog.main :as app])
   (apply (resolve 'app/-main) args))
+
+(deftask interact
+  "Main point is serving up compiled cljs"
+  []
+  (set-env! :resource-paths (fn [cur]
+                              (println "Getting ready to swap target/ for resources/ inside"
+                                       cur
+                                       "a"
+                                       (class cur))
+                              (-> cur
+                                  (conj "target")
+                                  (disj "resources"))))
+  (comp
+   (aot)
+   (add-version-text)
+   (pom)
+   (target)
+   (repl)))
 
 (ns-unmap *ns* 'test)
 

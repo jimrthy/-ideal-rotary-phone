@@ -1,5 +1,6 @@
 (ns com.jimrthy.blog.core
-  (:require [com.jimrthy.blog.lamport :as lamport]))
+  (:require [com.jimrthy.blog.lamport :as lamport]
+            [integrant.core :as ig]))
 
 (enable-console-print!)
 

@@ -1,5 +1,0 @@
-{:require [com.jimrthy.blog.core]
- :init-fns [core/main]
- :compiler-options #_{:output-to "public/js/main.js"
-                    :output-dir "public/js/out"}
-                   {:asset-path "js/main.out"}}

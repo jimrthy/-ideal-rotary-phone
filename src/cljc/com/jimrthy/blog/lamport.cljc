@@ -3,7 +3,7 @@
             [integrant.core :as ig]
             #?(:clj [io.pedestal.log :as log])))
 
-#? (:cljs (enable-console-logging!))
+#? (:cljs (enable-console-print!))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Specs
@@ -23,12 +23,6 @@
               ;; Remote clocks might be ahead of ours
               (inc remote-time)
               (inc my-time))))))
-
-(defn info
-  [& args]
-  ;; Well, this is annoying.
-  ;; Can't take the value of a macro.
-  (apply  args))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Public
