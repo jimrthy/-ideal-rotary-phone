@@ -2,8 +2,10 @@
   (:require [com.jimrthy.blog.authcz :as authcz]
             [com.jimrthy.blog.web.routes :as routes]
             [com.jimrthy.blog.web.web-sockets :as ws]
+            [crypto.random]
             [integrant.core :as ig]
             [io.pedestal.http :as http]
+            [io.pedestal.http.secure-headers :as sec-hdr]
             [io.pedestal.log :as log]
             [ring.middleware.session.cookie :as cookie]))
 
@@ -41,6 +43,38 @@
       :as this}]
   (http/stop actual))
 
+(defn more-secure-headers
+  ;; TODO: File a github issue. How am I the first person to notice this?
+  "Because the default CSP implementation doesn't actually work"
+  [original
+   {:keys [:report-url
+           ;; Let caller specify their own nonce creation function
+           :nonce-generator
+           :script-src]
+    :as options}]
+  {:pre [report-url]}
+  (log/debug ::where "Building a more secure header handler")
+  (let [default-leave (:leave original)]
+    {:name ::more-secure-headers
+     :enter (fn [ctx]
+              (let [nonce (if nonce-generator
+                            (nonce-generator)
+                            #_(crypto.random/base64 16)
+                            "8BTtk3xRK33B38aIaXXniA==")]
+                (assoc-in ctx [:request :csp-nonce] nonce)))
+     :leave (fn [ctx]
+              (let [csp-nonce (get-in ctx [:request :csp-nonce])
+                    constant-settings (merge options {:base-uri "'none'"
+                                                      :object-src "'none'"})
+                    script-src-with-nonce (str "'nonce-" csp-nonce "' "
+                                               (or script-src
+                                                   "'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:"))
+                    sec-headers (sec-hdr/csp-map->str (assoc constant-settings
+                                                             :script-src script-src-with-nonce))]
+                (assoc-in ctx
+                          [:response :headers "Content-Security-Policy"]
+                          sec-headers)))}))
+
 (defmethod ig/init-key ::server
   [_
    {:keys [::routes]
@@ -50,22 +84,30 @@
   {:pre [env
          routes
          service]}
-  (assoc this
-         ::actual
-         (-> service
-             (merge
-              {::http/routes (::routes routes)
-               ;; Don't block the thread that starts the server
-               ::http/join? false
-               ;; For dev mode, allow any origin.
-               ;; TODO: Totally change the rules for production
-               ::http/allowed-origins {:creds true
-                                       :allowed-origins (constantly true)}})
-             ;; Wire up interceptor chains
-             http/default-interceptors
-             http/dev-interceptors
-             http/create-server
-             http/start)))
+  (let [routed-service (merge service {::http/routes (::routes routes)
+                                       ;; Don't block the thread that starts the server
+                                       ::http/join? false})
+        default-interceptors (http/default-interceptors routed-service)
+        less-secure-interceptors (update default-interceptors
+                                         ::http/interceptors
+                                         (fn [starting]
+                                           (log/info ::where "Trying to override secure-headers"
+                                                     ::working-with (map :name starting))
+                                           (map (fn [intc]
+                                                  (if (= ::sec-hdr/secure-headers (:name intc))
+                                                    (more-secure-headers intc {:report-url "https://my-site.com/admin/csp-violations"})
+                                                    intc))
+                                                starting)))]
+    (assoc this
+           ::actual
+           ;; Wire up interceptor chains
+           (-> less-secure-interceptors
+               http/dev-interceptors
+               http/create-server
+               http/start))))
+(comment
+  (-> (http/default-interceptors {::http/routes []}) keys)
+  )
 
 (defmethod ig/init-key ::service
   [_ {:keys [::authcz
@@ -75,9 +117,12 @@
              ::ws]
       :or {port 8080}}]
   (let [{:keys [::authcz/cookie-key]} authcz
+        default-headers (sec-hdr/create-headers)
         baseline {:env (if production?
                          :prod
                          :dev)
+                  ;; For dev mode, allow any origin.
+                  ;; TODO: Totally change the rules for production
                   ::http/allowed-origins (fn [x]
                                            (log/info "TODO: Verify the origin of" x)
                                            true)
@@ -104,6 +149,21 @@
       (merge baseline {                  ;; all origins are allowed in dev mode
                        ::http/allowed-origins {:creds true
                                                :allowed-origins (constantly true)}}))))
+(comment
+  (->  (sec-hdr/create-headers) (get "Content-Security-Policy"))
+  "object-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:;"
+  (->  (sec-hdr/create-headers)
+       (assoc "Content-Security-Policy"
+              (str "object-src 'none';\n"
+                   "script-src 'replaceMe!' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:;\n"
+                   "base-uri 'none';\n"
+                   "report-uri https://my-origin/")))
+  (sec-hdr/csp-map->str {:base-uri "'none'"
+                         :object-src "'none'"
+                         :report-uri "https://my-origin/csp-violations"
+                         :script-src "'replaceMe!' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:"})
+  (sec-hdr/secure-headers)
+  )
 
 (defmethod ig/init-key ::socket
   [_ opts]

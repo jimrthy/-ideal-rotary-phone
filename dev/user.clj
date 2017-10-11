@@ -18,6 +18,7 @@
             [io.pedestal.http :as http]
             ;; try-routing-for is especially useful
             [io.pedestal.http.route :as route]
+            [io.pedestal.test :as ped-test]
             [integrant.repl :refer [clear go halt
                                     init prep
                                     ;; reset isn't working
@@ -50,3 +51,8 @@
 (defn system
   []
   ig-state/system)
+
+(defn check-response
+  [verb url]
+  (let [svc-fn (-> (system) ::web/server ::web/actual :io.pedestal.http/service-fn)]
+    (ped-test/response-for svc-fn verb url)))
