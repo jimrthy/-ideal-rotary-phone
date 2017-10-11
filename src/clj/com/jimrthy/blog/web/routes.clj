@@ -22,6 +22,26 @@
                         ::response (with-out-str (pprint result)))
               result))})
 
+(defn view-article
+  [{{:keys [:article-id]
+     :as path-params} :path-params
+    :as request}]
+  (respond/ok (str "Returning article #" article-id)))
+
+(def insert-article
+  {:name ::article-insert
+   :enter (fn [{:keys [:request]
+                :as ctx}]
+            ;; TODO: Add an interceptor for decoding body params
+            (let [raw-body (:body request)
+                  body (slurp raw-body)
+                  headers (:headers request)]
+              (log/debug ::what "PUT a new article"
+                         ::request-keys (keys request)
+                         ::headers headers
+                         ::body body))
+            (assoc ctx :response (respond/ok "Article inserted")))})
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Magic constants
 
@@ -78,7 +98,9 @@
   ;; echo was just for testing.
   ;; login really needs to go over the websocket.
   ;; But this is the basic idea
-  #{["/api/v1/echo" :get echo :route-name ::get-echo]
+  #{["/api/v1/article/:article-id" :get view-article :route-name ::view-article]
+    ["/api/v1/article/:article-id" :put insert-article :route-name ::add-article]
+    ["/api/v1/echo" :get echo :route-name ::get-echo]
     ["/api/v1/echo" :post echo :route-name ::post-echo]
     ["/api/v1/greet" :get [coerce-body content-neg-intc greet] :route-name ::hello-world]
     #_["/api/v1/login" :get (conj (intrcptr/default-interceptor-chain auth-manager)
@@ -113,7 +135,8 @@
   ;; recalculating this is going to be almost negligible.
   ;; c.f. the "Developing at the REPL" section of the
   ;; pedestal.io guides
-  (comment (fn [x]
-             (log/debug ::param x)
-             (route/expand-routes (table this))))
-  (route/expand-routes (table this)))
+  (comment
+    (route/expand-routes (table this)))
+  (fn []
+    (log/debug ::where "Expanding routes")
+    (route/expand-routes (table this))))
