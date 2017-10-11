@@ -59,8 +59,7 @@
      :enter (fn [ctx]
               (let [nonce (if nonce-generator
                             (nonce-generator)
-                            #_(crypto.random/base64 16)
-                            "8BTtk3xRK33B38aIaXXniA==")]
+                            (crypto.random/base64 16))]
                 (assoc-in ctx [:request :csp-nonce] nonce)))
      :leave (fn [ctx]
               (let [csp-nonce (get-in ctx [:request :csp-nonce])
@@ -138,6 +137,12 @@
                   ;; do not block thread that starts web server
                   ::http/join? false
                   ::http/port port
+                  ;; TODO: This next part has to go away for CSP issues
+                  ;; Or, at least, I need to wrap it to add the nonce to
+                  ;; any script tags. Once I figure out why I'm getting
+                  ;; errors from scripts that mine try to reference.
+                  ;; Paul deGrandis' advice was to just disable CSP
+                  ;; for an SPA, which seems nuts at first glance
                   ::http/resource-path "/public"
                   ;; According to the official docs:
                   ;; this can be "a function that returns routes when called"
