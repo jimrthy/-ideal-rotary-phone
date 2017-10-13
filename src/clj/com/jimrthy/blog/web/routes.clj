@@ -66,6 +66,23 @@
   (respond/internal-error "Not Implemented"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Actual
+
+(defn item-manager
+  [{:keys [json-params]
+    :as request}]
+  (log/info ::incoming (keys request) ::json-params json-params)
+  (let [{:keys [:result]} json-params
+        {:keys [:action :parameters]} result]
+    (respond/ok (json/generate-string {"speech" (pr-str {"action" action
+                                                         "parameters" parameters})}))))
+
+;; Sample:
+;; ":com.jimrthy.blog.web.routes/json-params
+;;  {:id "002cf7c5-df6c-4473-9f73-ca721fe598ab", :timestamp "2017-10-13T15:03:40.016Z", :lang "en", :result {:source "agent", :actionIncomplete false, :fulfillment {:speech "", :messages [{:type 0, :id "9023267b-9a47-4bd5-ae93-e050bd226c88", :speech ""}]}, :score 0.9100000262260437, :resolvedQuery "add coconut", :action "item.add", :contexts [], :parameters {:item "coconut"}, :metadata {:intentId "8d550f05-a694-4d57-b925-38daea8da8bc", :webhookUsed "true", :webhookForSlotFillingUsed "false", :intentName "Add item"}}, :status {:code 206, :errorType "partial_content", :errorDetails "Webhook call failed. Error: 404 Not Found"}"
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Magic constants
 
 (def supported-types ["text/html" "application/edn" "application/json" "text/plain"])
@@ -121,19 +138,21 @@
   ;; echo was just for testing.
   ;; login really needs to go over the websocket.
   ;; But this is the basic idea
-  #{["/api/v1/article/:article-id" :get view-article :route-name ::view-article]
-    ["/api/v1/article/:article-id" :put [(body-params/body-params) params/keyword-body-params insert-article] :route-name ::add-article]
-    ["/api/v1/echo" :get echo :route-name ::get-echo]
-    ["/api/v1/echo" :post echo :route-name ::post-echo]
-    ["/api/v1/file/:file-id" :put [(mw/multipart-params) upload-file] :route-name ::add-file]
-    ["/api/v1/greet" :get [coerce-body content-neg-intc greet] :route-name ::hello-world]
-    #_["/api/v1/login" :get (conj (intrcptr/default-interceptor-chain auth-manager)
-                                list-logged-in-users)]
-    #_["/api/v1/login" :post (conj (vec (remove #(or (= intrcptr/authc %)
-                                                   (= intrcptr/authz %))
-                                              (intrcptr/default-interceptor-chain auth-manager)))
-                                 (body-params) log-in)]
-    #_["/api/v1/login" :delete (conj (intrcptr/default-interceptor-chain auth-manager) log-out)]})
+  (comment
+    #{["/api/v1/article/:article-id" :get view-article :route-name ::view-article]
+      ["/api/v1/article/:article-id" :put [(body-params/body-params) params/keyword-body-params insert-article] :route-name ::add-article]
+      ["/api/v1/echo" :get echo :route-name ::get-echo]
+      ["/api/v1/echo" :post echo :route-name ::post-echo]
+      ["/api/v1/file/:file-id" :put [(mw/multipart-params) upload-file] :route-name ::add-file]
+      ["/api/v1/greet" :get [coerce-body content-neg-intc greet] :route-name ::hello-world]
+      #_["/api/v1/login" :get (conj (intrcptr/default-interceptor-chain auth-manager)
+                                    list-logged-in-users)]
+      #_["/api/v1/login" :post (conj (vec (remove #(or (= intrcptr/authc %)
+                                                       (= intrcptr/authz %))
+                                                  (intrcptr/default-interceptor-chain auth-manager)))
+                                     (body-params) log-in)]
+      #_["/api/v1/login" :delete (conj (intrcptr/default-interceptor-chain auth-manager) log-out)]})
+  #{["/webhook" :post [(body-params/body-params) params/keyword-body-params item-manager] :route-name ::my-list-webhook]})
 (comment
   (table {})
   )

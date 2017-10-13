@@ -1,0 +1,38 @@
+{
+  "id": "002cf7c5-df6c-4473-9f73-ca721fe598ab",
+  "timestamp": "2017-10-13T15:03:40.016Z",
+  "lang": "en",
+  "result": {
+    "source": "agent",
+    "resolvedQuery": "add coconut",
+    "action": "item.add",
+    "actionIncomplete": false,
+    "parameters": {
+      "item": "coconut"
+    },
+    "contexts": [],
+    "metadata": {
+      "intentId": "8d550f05-a694-4d57-b925-38daea8da8bc",
+      "webhookUsed": "true",
+      "webhookForSlotFillingUsed": "false",
+      "intentName": "Add item"
+    },
+    "fulfillment": {
+      "speech": "",
+      "messages": [
+        {
+          "type": 0,
+          "id": "9023267b-9a47-4bd5-ae93-e050bd226c88",
+          "speech": ""
+        }
+      ]
+    },
+    "score": 0.9100000262260437
+  },
+  "status": {
+    "code": 206,
+    "errorType": "partial_content",
+    "errorDetails": "Webhook call failed. Error: 404 Not Found"
+  },
+  "sessionId": "b580b259-d93e-4ae9-9f00-71202d1cba65"
+}
