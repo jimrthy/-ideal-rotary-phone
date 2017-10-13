@@ -110,11 +110,13 @@
 
 (defmethod ig/init-key ::service
   [_ {:keys [::authcz
+             ::host
              ::port
              ::production?
              ::routes
              ::ws]
-      :or {port 8080}}]
+      :or {port 8080
+           host "localhost"}}]
   (let [{:keys [::authcz/cookie-key]} authcz
         default-headers (sec-hdr/create-headers)
         baseline {:env (if production?
@@ -135,6 +137,7 @@
                   ;; TODO: Use a real database for the cookie store
                   ::http/enable-session {:store (cookie/cookie-store {:key cookie-key})}
                   ;; do not block thread that starts web server
+                  ::http/host host
                   ::http/join? false
                   ::http/port port
                   ;; TODO: This next part has to go away for CSP issues
