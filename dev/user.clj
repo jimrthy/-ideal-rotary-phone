@@ -30,7 +30,8 @@
             [integrant.repl.state :as ig-state]))
 
 ;; FIXME: Pull these from the environment
-(let [opts {::web/service {::web/host "192.168.50.13"}}]
+(let [opts {::web/service {::web/host "localhost"
+                           ::web/port 8040}}]
   (integrant.repl/set-prep! (partial sys/init opts)))
 
 (defn check
