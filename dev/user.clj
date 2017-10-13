@@ -4,6 +4,7 @@
   Well, they will be, if I can figure out how to make
   this work."
   (:require [clojure.core.async :as async]
+            [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.pprint :refer (pprint)]
             [clojure.reflect :as reflect]

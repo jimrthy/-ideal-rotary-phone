@@ -2,12 +2,17 @@
   (:require [cheshire.core :as json]
             [clojure.pprint :refer (pprint)]
             [com.jimrthy.blog.web.response-wrappers :as respond]
+            [io.pedestal.http.body-params :as body-params]
             [io.pedestal.http.content-negotiation :as con-neg]
+            [io.pedestal.http.params :as params]
+            [io.pedestal.http.ring-middlewares :as mw]
             [io.pedestal.http.route :as route]
             [io.pedestal.log :as log]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Handlers
+;;; These don't belong in here.
+;;; They're really just proof-of-concept
 
 (def echo
   {:name ::echo
@@ -33,14 +38,32 @@
    :enter (fn [{:keys [:request]
                 :as ctx}]
             ;; TODO: Add an interceptor for decoding body params
-            (let [raw-body (:body request)
-                  body (slurp raw-body)
-                  headers (:headers request)]
+            (let [{:keys [:body :body-params :edn-params :json-params :headers]} request]
               (log/debug ::what "PUT a new article"
                          ::request-keys (keys request)
                          ::headers headers
-                         ::body body))
+                         ::body (slurp body)
+                         ;; This is arriving as nil
+                         ::body-params body-params
+                         ;; If I submit the request as EDN, the
+                         ;; params wind up here.
+                         ;; This is annoying.
+                         ;; TODO: See whether they have any default
+                         ;; interceptors that just merge all possible/
+                         ;; likely parameter maps.
+                         ;; If not, go ahead and write one.
+                         ::edn-params edn-params
+                         ;; When I specify that the request is
+                         ;; content-type=application/json in
+                         ;; the headers, I get this back.
+                         ::json-params json-params))
             (assoc ctx :response (respond/ok "Article inserted")))})
+
+(defn upload-file
+  [request]
+  ;; FIXME: Get this written
+  ;; Use -f and @ w/ httpie for the client portions.
+  (respond/internal-error "Not Implemented"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Magic constants
@@ -99,9 +122,10 @@
   ;; login really needs to go over the websocket.
   ;; But this is the basic idea
   #{["/api/v1/article/:article-id" :get view-article :route-name ::view-article]
-    ["/api/v1/article/:article-id" :put insert-article :route-name ::add-article]
+    ["/api/v1/article/:article-id" :put [(body-params/body-params) params/keyword-body-params insert-article] :route-name ::add-article]
     ["/api/v1/echo" :get echo :route-name ::get-echo]
     ["/api/v1/echo" :post echo :route-name ::post-echo]
+    ["/api/v1/file/:file-id" :put [(mw/multipart-params) upload-file] :route-name ::add-file]
     ["/api/v1/greet" :get [coerce-body content-neg-intc greet] :route-name ::hello-world]
     #_["/api/v1/login" :get (conj (intrcptr/default-interceptor-chain auth-manager)
                                 list-logged-in-users)]
