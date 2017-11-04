@@ -1,6 +1,5 @@
 (ns ideal-rotary-phone.hello
   (:require [cheshire.core :as json]
-            [clojure.core.async :as async]
             [immutant.web.async :as web-async]
             [io.pedestal.http :as http]
             [io.pedestal.http.immutant.websockets :as ws]

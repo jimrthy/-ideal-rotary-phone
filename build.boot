@@ -22,7 +22,7 @@
                           [org.immutant/web "2.1.9" :exclusions [org.clojure/tools.reader
                                                                  org.jboss.logging/jboss-logging]]
                           [org.slf4j/slf4j-api "1.8.0-alpha2"]]
-          :source-paths #{"src" "test"})
+          :source-paths #{"dev" "src" "test"})
 
 (require '[boot.immutant :refer (gird)])
 
