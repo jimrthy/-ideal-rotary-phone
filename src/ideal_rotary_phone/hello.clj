@@ -1,5 +1,6 @@
 (ns ideal-rotary-phone.hello
-  (:require [clojure.core.async :as async]
+  (:require [cheshire.core :as json]
+            [clojure.core.async :as async]
             [immutant.web.async :as web-async]
             [io.pedestal.http :as http]
             [io.pedestal.http.immutant.websockets :as ws]
@@ -212,3 +213,8 @@
 (defn respond-hello
        [request]
        {:status 200 :body "Hello, World"})
+
+
+(defn init
+  []
+  (println "Hello!"))
