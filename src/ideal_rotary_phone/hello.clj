@@ -1,5 +1,6 @@
 (ns ideal-rotary-phone.hello
-  (:require [immutant.web.async :as web-async]
+  (:require [clojure.core.async :as async]
+            [immutant.web.async :as web-async]
             [io.pedestal.http :as http]
             [io.pedestal.http.immutant.websockets :as ws]
             [io.pedestal.http.route :as route]
